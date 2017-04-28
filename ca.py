@@ -7,14 +7,15 @@ import matplotlib.pyplot as plt
 def new_mitotic_event():
     return np.random.randint(5,11)
 
-def set_new_mitotic_event(agenda, time, position):
+#TODO: Refactorizar con lo que hay en el buble de ejecución
+"""def set_new_mitotic_event(agenda, time, position):
     if time in agenda:
         events = agenda[time]
         events.append(position)
         agenda[time] = events
     else:
         agenda[time] = list(position)
-    return agenda
+    return agenda"""
 
 def check_full_neighborhood(cell, cells): #TODO: comprobar el grid para ver si el vecindario tiene espacio
     return True
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     #Global structures initialization
 
     half_grid = int(grid_size/2)
-    
+
     """grid[half_grid][half_grid] = str(cells[0])"""
 
     #First cell
@@ -144,6 +145,7 @@ if __name__ == "__main__":
             events = mitotics_events[iteration]
             del mitotics_events[iteration]
             for event in events:
+                print(events)
                 if event in cells:
                     mitotic_candidate_cell = cells[event]
                     tests_result = test_1(mitotic_candidate_cell, a)
@@ -156,12 +158,14 @@ if __name__ == "__main__":
                     elif apply_mitotic(mitotic_candidate_cell, mitotic_candidate_cell):
                         print("Mitotic event succeded!")
                     else: #Programar nuevo evento mitotico
+                        print("New event succeded!")
                         new_event_time = new_mitotic_event() + iteration
+                        print("New event time: " + str(new_event_time) + ", at: " + str(event))
                         if new_event_time in mitotics_events:
                             events_aux = mitotics_events[new_event_time]
-                            events_aux.append(mitotic_candidate_cell)
+                            events_aux.append(event)
                             mitotics_events[new_event_time] = events_aux
                         else:
-                            mitotics_events.update({new_event_time: [mitotic_candidate_cell]})
+                            mitotics_events.update({new_event_time: [event]})
         sleep(sleep_time)
 
