@@ -7,6 +7,15 @@ import matplotlib.pyplot as plt
 def new_mitotic_event():
     return np.random.randint(5,11)
 
+def set_new_mitotic_event(agenda, time, position):
+    if time in agenda:
+        events = agenda[time]
+        events.append(position)
+        agenda[time] = events
+    else:
+        agenda[time] = list(position)
+    return agenda
+
 class Genome:
 
     def __init__(self, sg, igi, ea, ag, ei, mt, tl):
@@ -32,7 +41,7 @@ if __name__ == "__main__":
     sleep_time = 0.5
 
     time = 100
-    iterations = range(1, time)
+    iterations = range(time)
 
     grid_size = 10
 
@@ -56,33 +65,40 @@ if __name__ == "__main__":
 
     mitotics_events = dict()
 
-    grid = np.array([[0 for j in range(grid_size)] for i in range(grid_size)])
+    """grid = np.array([['[*, *, *, *, *, *, *]' for j in range(grid_size)] for i in range(grid_size)]) #TODO transformar la cadena por algun numero"""
 
     #Global structures initialization
 
     half_grid = int(grid_size/2)
     
-    grid[half_grid][half_grid] = 1
+    """grid[half_grid][half_grid] = str(cells[0])"""
+
+    #First cell
+
+    cells = {(half_grid, half_grid): [Genome(0, 0, 0, 0, 0, 0, tl)]}
 
     #mitotics_events structure initialization
 
-    mitotics_events[new_mitotic_event()] = [(half_grid, half_grid)]
+    mitotics_events[new_mitotic_event()] = list((half_grid, half_grid))
 
     #Run
 
     for iteration in tqdm(iterations):
-
+        if iteration in mitotics_events:
+            events = mitotics_events[iteration]
+            if len(events) > 0:
+                #TODO: hacer iteración por eventos y ejecutar los 5 tests
+                next_mitotic_event = True
+                if next_mitotic_event:
+                    mitotics_events = set_new_mitotic_event(mitotics_events, iteration + new_mitotic_event() , (0,0)) #TODO: La posición dependerá de cada célula
+                    print(mitotics_events)
         sleep(sleep_time)
-
-
-    # 
-
-    #
 
     #print(grid)
     #print(Genome(0,0,0,0,0,0,0))
     #print(new_mitotic_event())
-    print(mitotics_events)
+    #print(mitotics_events)
+    #print(cells)
 
     """Z = np.random.randint(0,2,(256,512))
 
