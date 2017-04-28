@@ -1,6 +1,11 @@
+import random
+from time import sleep
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
-#from Queue import PriorityQueue
+
+def new_mitotic_event():
+    return np.random.randint(5,11)
 
 class Genome:
 
@@ -22,7 +27,12 @@ class Genome:
 if __name__ == "__main__":
 
     #Global parameters definition and initialization
-    #TODO: hacer que sea configurable por fichero
+    #TODO: hacer que sea configurable por fichero, usando argparse
+
+    sleep_time = 0.5
+
+    time = 100
+    iterations = range(1, time)
 
     grid_size = 10
 
@@ -54,10 +64,25 @@ if __name__ == "__main__":
     
     grid[half_grid][half_grid] = 1
 
+    #mitotics_events structure initialization
+
+    mitotics_events[new_mitotic_event()] = [(half_grid, half_grid)]
+
+    #Run
+
+    for iteration in tqdm(iterations):
+
+        sleep(sleep_time)
+
+
+    # 
+
     #
 
     #print(grid)
-    print(Genome(0,0,0,0,0,0,0))
+    #print(Genome(0,0,0,0,0,0,0))
+    #print(new_mitotic_event())
+    print(mitotics_events)
 
     """Z = np.random.randint(0,2,(256,512))
 
