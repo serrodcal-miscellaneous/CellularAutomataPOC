@@ -10,11 +10,11 @@ def new_mitotic_event():
 def check_full_neighborhood(cell, cells): #TODO: comprobar el grid para ver si el vecindario tiene espacio
     return True #Devolver lista con posiciones candidatas por estar libres
 
-def if_apply_kill_cell(tests_result):
-    return tests_result[0] == '1'
+def if_apply_kill_cell(tests_result): # Randomly death or mutation damage applied
+    return tests_result[0] == '1' or tests_result[1] == '1'
 
-def if_apply_mitotic(mitotic_candidate_cell, cells):
-    return tests_result[1] == '1'
+def if_apply_mitotic(tests_result):
+    return tests_result[2] == '1' and tests_result[3] == '1' and tests_result[4] == '1'
 
 def postpone_mitotic_event(mitotics_events, new_event_time, cell_position):
     new_event_time = new_mitotic_event() + iteration
@@ -171,7 +171,7 @@ if __name__ == "__main__":
                     tests_result += test_5(mitotic_candidate_cell)
                     if if_apply_kill_cell(tests_result):
                         print("Cell death event succeded!")
-                    elif if_apply_mitotic(mitotic_candidate_cell, mitotic_candidate_cell):
+                    elif if_apply_mitotic(tests_result):
                         print("Mitotic event succeded!")
                     else: #Programar nuevo evento mitotico
                         """ BEGIN Borrar 
