@@ -8,13 +8,13 @@ def new_mitotic_event():
     return np.random.randint(5,11)
 
 def check_full_neighborhood(cell, cells): #TODO: comprobar el grid para ver si el vecindario tiene espacio
-    return True
+    return True #Devolver lista con posiciones candidatas por estar libres
 
-def if_apply_kill_cell(tests_result, cells, cell):
-    return False
+def if_apply_kill_cell(tests_result):
+    return tests_result[0] == '1'
 
 def if_apply_mitotic(mitotic_candidate_cell, cells):
-    return False
+    return tests_result[1] == '1'
 
 def postpone_mitotic_event(mitotics_events, new_event_time, cell_position):
     new_event_time = new_mitotic_event() + iteration
@@ -31,8 +31,8 @@ def postpone_mitotic_event(mitotics_events, new_event_time, cell_position):
 def test_1(cell, a):
     if np.random.random() < 1/a:
         print("Muerte aleatoria")
-        return 0
-    return 1
+        return '0'
+    return '1'
 
 def test_2(cell, e, cells): #Si no esta activo EA y aplica la muerte, devuelve 0. En otro caso, devolve 1.
     if cell in cells:
@@ -41,31 +41,26 @@ def test_2(cell, e, cells): #Si no esta activo EA y aplica la muerte, devuelve 0
         if not cell_genome.ea:
             if np.random.randint(0,n) < n/e:
                 print("Muerte por mutaciones")
-                return 0
-    return 1
+                return '0'
+    return '1'
 
 def test_3(cell): 
     #TODO: Hay que buscar en el articulo que procedimiento sigue este test.
-    return 1
+    return '1'
 
 def test_4(cell, cells):
     full = check_full_neighborhood(cell, cells)
-    """ BEGIN Borrar """
-    full = np.random.randint(0,9) < 2
-    """ END Borrar """
     if full and cell.igi and np.random.random() < 1/g:
         print("Mata a un vecino")
-        return 1
-    return 0
+        return '1'
+    return '0'
 
 def test_5(cell): 
-    if cell.tl == 0:
-        if cell.ei:
-            return 1
-        else:
-            return 0
-            print("Muerte por telomero")
-    return 1
+    if cell.tl == 0 and not cell.ei:
+        print("Muerte por telomero")
+        return '0'
+    else:
+        return '1'
 
 class Genome:
 
@@ -174,14 +169,14 @@ if __name__ == "__main__":
                     tests_result += test_3(mitotic_candidate_cell,) #Ver TODO en funcion.
                     tests_result += test_4(mitotic_candidate_cell, cells)
                     tests_result += test_5(mitotic_candidate_cell)
-                    if if_apply_kill_cell(tests_result, cells, mitotic_candidate_cell):
+                    if if_apply_kill_cell(tests_result):
                         print("Cell death event succeded!")
                     elif if_apply_mitotic(mitotic_candidate_cell, mitotic_candidate_cell):
                         print("Mitotic event succeded!")
                     else: #Programar nuevo evento mitotico
-                        """ BEGIN Borrar
+                        """ BEGIN Borrar 
                         cells[event] = mutate(mitotic_candidate_cell)
-                        END Borrar"""
+                         END Borrar """
                         new_event_time = new_mitotic_event() + iteration
                         mitotics_events = postpone_mitotic_event(mitotics_events, new_event_time, event)
         sleep(sleep_time)
