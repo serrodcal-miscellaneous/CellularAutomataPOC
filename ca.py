@@ -7,29 +7,30 @@ import matplotlib.pyplot as plt
 def new_mitotic_event():
     return np.random.randint(5,11)
 
-#TODO: Refactorizar con lo que hay en el buble de ejecución
-"""def set_new_mitotic_event(agenda, time, position):
-    if time in agenda:
-        events = agenda[time]
-        events.append(position)
-        agenda[time] = events
-    else:
-        agenda[time] = list(position)
-    return agenda"""
-
 def check_full_neighborhood(cell, cells): #TODO: comprobar el grid para ver si el vecindario tiene espacio
     return True
 
-def kill_cell(tests_result, cells, cell):
+def if_apply_kill_cell(tests_result, cells, cell):
     return False
 
-def apply_mitotic(mitotic_candidate_cell, cells):
+def if_apply_mitotic(mitotic_candidate_cell, cells):
     return False
+
+def postpone_mitotic_event(mitotics_events, new_event_time, cell_position):
+    new_event_time = new_mitotic_event() + iteration
+    if new_event_time in mitotics_events:
+        events_aux = mitotics_events[new_event_time]
+        events_aux.append(cell_position)
+        mitotics_events[new_event_time] = events_aux
+    else:
+        mitotics_events.update({new_event_time: [cell_position]})
+    return mitotics_events
 
 #Tests: Salvo excepcion, se devuelve 1 cuando hay mitosis, y 0 cuando aplica la muerte.
 
 def test_1(cell, a):
-    if np.random.randint(0, a) < 1/a:
+    if np.random.random() < 1/a:
+        print("Muerte aleatoria")
         return 0
     return 1
 
@@ -39,6 +40,7 @@ def test_2(cell, e, cells): #Si no esta activo EA y aplica la muerte, devuelve 0
         n = cell_genome.mutations()
         if not cell_genome.ea:
             if np.random.randint(0,n) < n/e:
+                print("Muerte por mutaciones")
                 return 0
     return 1
 
@@ -48,14 +50,22 @@ def test_3(cell):
 
 def test_4(cell, cells):
     full = check_full_neighborhood(cell, cells)
-    if full and cell.igi and np.random.random(0, g) < 1/g:
+    """ BEGIN Borrar """
+    full = np.random.randint(0,9) < 2
+    """ END Borrar """
+    if full and cell.igi and np.random.random() < 1/g:
+        print("Mata a un vecino")
         return 1
     return 0
 
 def test_5(cell): 
-    if cell.tl == 0 and cell.ei:
-        return 1
-    return 0
+    if cell.tl == 0:
+        if cell.ei:
+            return 1
+        else:
+            return 0
+            print("Muerte por telomero")
+    return 1
 
 class Genome:
 
@@ -90,14 +100,26 @@ class Genome:
             count += 1
         return count
 
+""" BEGIN Borrar """
+def mutate(mitotic_candidate_cell):
+    mitotic_candidate_cell.sg = np.random.randint(0,2)
+    mitotic_candidate_cell.igi = np.random.randint(0,2)
+    mitotic_candidate_cell.ea = np.random.randint(0,2)
+    mitotic_candidate_cell.ag = np.random.randint(0,2)
+    mitotic_candidate_cell.ei = np.random.randint(0,2)
+    mitotic_candidate_cell.mt = np.random.randint(0,2)
+    mitotic_candidate_cell.tl -= 1
+    return mitotic_candidate_cell
+""" END Borrar """
+
 if __name__ == "__main__":
 
     #Global parameters definition and initialization
     #TODO: hacer que sea configurable por fichero, usando argparse
 
-    sleep_time = 0.5
+    sleep_time = 0.05
 
-    time = 100
+    time = 100*100
     iterations = range(time)
 
     grid_size = 10
@@ -144,8 +166,7 @@ if __name__ == "__main__":
         if iteration in mitotics_events:
             events = mitotics_events[iteration]
             del mitotics_events[iteration]
-            for event in events:
-                print(events)
+            for event in events: #Event == Cell position
                 if event in cells:
                     mitotic_candidate_cell = cells[event]
                     tests_result = test_1(mitotic_candidate_cell, a)
@@ -153,19 +174,15 @@ if __name__ == "__main__":
                     tests_result += test_3(mitotic_candidate_cell,) #Ver TODO en funcion.
                     tests_result += test_4(mitotic_candidate_cell, cells)
                     tests_result += test_5(mitotic_candidate_cell)
-                    if kill_cell(tests_result, cells, mitotic_candidate_cell):
+                    if if_apply_kill_cell(tests_result, cells, mitotic_candidate_cell):
                         print("Cell death event succeded!")
-                    elif apply_mitotic(mitotic_candidate_cell, mitotic_candidate_cell):
+                    elif if_apply_mitotic(mitotic_candidate_cell, mitotic_candidate_cell):
                         print("Mitotic event succeded!")
                     else: #Programar nuevo evento mitotico
-                        print("New event succeded!")
+                        """ BEGIN Borrar
+                        cells[event] = mutate(mitotic_candidate_cell)
+                        END Borrar"""
                         new_event_time = new_mitotic_event() + iteration
-                        print("New event time: " + str(new_event_time) + ", at: " + str(event))
-                        if new_event_time in mitotics_events:
-                            events_aux = mitotics_events[new_event_time]
-                            events_aux.append(event)
-                            mitotics_events[new_event_time] = events_aux
-                        else:
-                            mitotics_events.update({new_event_time: [event]})
+                        mitotics_events = postpone_mitotic_event(mitotics_events, new_event_time, event)
         sleep(sleep_time)
 
